@@ -8,6 +8,7 @@ Metrics
 -------
 - CIA / LTF / IA / LTC  (instance-aware; uses per-frame masks if provided)
 - PSNR / SSIM           (original vs edited, full-frame)
+- LPIPS                 (perceptual distance; original vs edited, full-frame; lower is better)
 - CLIP-F / CLIP-T       (text–video alignment using the global edited description)
 - Warp-Err              (temporal warp error on edited video)
 
@@ -25,7 +26,7 @@ Use a JSON spec describing the edited instances. Example:
 
 CLI (video files)
 -----------------
-python video_edit_metrics_instances_seq.py \
+python measure.py \
   --orig /path/original.mp4 \
   --edit /path/edited.mp4 \
   --spec /path/spec.json \
@@ -45,7 +46,7 @@ python measure.py \
 
 Dependencies
 ------------
-pip install numpy pillow opencv-python torch torchvision open_clip_torch transformers scikit-image tqdm
+pip install numpy pillow opencv-python torch torchvision open_clip_torch transformers scikit-image tqdm lpips
 
 Notes
 -----
@@ -233,6 +234,47 @@ def ssim(img1: np.ndarray, img2: np.ndarray) -> float:
         ssim_map = ((2 * mu1_mu2 + C1) * (2 * sigma12 + C2)) / ((mu1_sq + mu2_sq + C1) * (sigma1_sq + sigma2_sq + C2))
         return float(ssim_map.mean())
 
+# ---------------------- LPIPS ----------------------
+class LPIPSComputer:
+    """
+    Thin wrapper around the 'lpips' package.
+    Produces a lower-is-better perceptual distance between two images.
+    Returns NaN if lpips isn't available.
+    """
+    def __init__(self, device: str = "cpu", net: str = "alex"):
+        self.device = torch.device(device)
+        self.ok = False
+        self.loss_fn = None
+        try:
+            import lpips  # pip install lpips
+            self.loss_fn = lpips.LPIPS(net=net).to(self.device).eval()
+            self.ok = True
+        except Exception:
+            # Gracefully degrade if lpips isn't installed or fails to init
+            self.loss_fn = None
+            self.ok = False
+
+    @torch.no_grad()
+    def distance(self, img1: np.ndarray, img2: np.ndarray) -> float:
+        """
+        img1/img2: HxWx3 uint8 RGB
+        Returns a scalar float LPIPS distance.
+        """
+        if not self.ok:
+            return float("nan")
+
+        # Convert [0,255] RGB -> [-1,1] CHW float32
+        def to_tensor(x: np.ndarray) -> torch.Tensor:
+            t = torch.from_numpy(x).permute(2, 0, 1).float() / 255.0
+            t = t * 2.0 - 1.0
+            return t.unsqueeze(0).to(self.device)
+
+        t1 = to_tensor(img1)
+        t2 = to_tensor(img2)
+        d = self.loss_fn(t1, t2)
+        return float(d.item())
+
+# ---------------------- Temporal ----------------------
 
 def warp_error_mean_abs(frames: List[np.ndarray]) -> float:
     if len(frames) < 2:
@@ -288,6 +330,11 @@ def compute_metrics(orig_frames: List[np.ndarray], edit_frames: List[np.ndarray]
     PSNR = float(np.mean(psnrs))
     SSIM = float(np.mean(ssims))
 
+    # 1b) LPIPS (full-frame, lower is better)
+    lpips_comp = LPIPSComputer(device=device)
+    lpips_vals = [lpips_comp.distance(o, e) for o, e in zip(orig_frames, edit_frames)]
+    LPIPS = float(np.mean(lpips_vals)) if len(lpips_vals) else float("nan")
+
     # 2) Warp-Err on edited video
     WarpErr = warp_error_mean_abs(edit_frames)
 
@@ -334,7 +381,8 @@ def compute_metrics(orig_frames: List[np.ndarray], edit_frames: List[np.ndarray]
     valid_ids = [iid for iid in inst_ids if iid in inst_img_emb]
     if len(valid_ids) == 0:
         return {
-            "PSNR": PSNR, "SSIM": SSIM, "Warp-Err": WarpErr,
+            "PSNR": PSNR, "SSIM": SSIM, "LPIPS": LPIPS,
+            "Warp-Err": WarpErr,
             "CLIP-F": CLIP_F, "CLIP-T": CLIP_T,
             "CIA": float("nan"), "LTF": float("nan"), "IA": float("nan"), "LTC": float("nan")
         }
@@ -373,7 +421,8 @@ def compute_metrics(orig_frames: List[np.ndarray], edit_frames: List[np.ndarray]
     ltc = float(np.mean(ltc_vals)) if ltc_vals else float("nan")
 
     return {
-        "PSNR": float(PSNR), "SSIM": float(SSIM), "Warp-Err": float(WarpErr),
+        "PSNR": float(PSNR), "SSIM": float(SSIM), "LPIPS": float(LPIPS),
+        "Warp-Err": float(WarpErr),
         "CLIP-F": float(CLIP_F), "CLIP-T": float(CLIP_T),
         "CIA": float(cia), "LTF": float(ltf), "IA": float(ia), "LTC": float(ltc)
     }
@@ -415,7 +464,7 @@ def main():
     metrics = compute_metrics(orig_frames, edit_frames, spec, device=args.device, frame_names=frame_names)
 
     print("\n==== Metrics ====")
-    for k in ["CIA","LTF","IA","LTC","CLIP-F","CLIP-T","PSNR","SSIM","Warp-Err"]:
+    for k in ["CIA","LTF","IA","LTC","CLIP-F","CLIP-T","PSNR","SSIM","LPIPS","Warp-Err"]:
         v = metrics[k]
         if isinstance(v, float) and np.isfinite(v):
             print(f"{k:8s}: {v:.4f}")
