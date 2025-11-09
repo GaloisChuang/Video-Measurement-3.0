@@ -1,0 +1,16 @@
+{
+  "description": "A woman wearing a white shirt walks from the left to the right and a a man wearing a blue shirt walks from the right to the left.",
+  "instances": [
+    {
+      "instance_id": "1",
+      "source_caption": "a woman wearing a white shirt",
+      "target_caption": "a woman wearing a red shirt"
+    },
+    {
+      "instance_id": "2",
+      "source_caption": "a man wearing a blue shirt",
+      "target_caption": "a man wearing in a green shirt"
+    }
+  ],
+  "mask_root": "data/clips/clip_001/masks"
+}
