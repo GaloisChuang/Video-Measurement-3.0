@@ -10,6 +10,7 @@ Metrics
 - PSNR / SSIM           (original vs edited, full-frame)
 - LPIPS                 (perceptual distance; original vs edited, full-frame; lower is better)
 - CLIP-F / CLIP-T       (text–video alignment using the global edited description)
+                        NOTE: In this version CLIP-F / CLIP-T are SCALED BY 100 to match common paper reporting.
 - Warp-Err              (temporal warp error on edited video)
 
 Inputs
@@ -341,14 +342,21 @@ def compute_metrics(orig_frames: List[np.ndarray], edit_frames: List[np.ndarray]
     # 3) CLIP global metrics (use edited description)
     enc = ClipEncoder(device=device)
     pil_frames = [Image.fromarray(f) for f in edit_frames]
-    img_emb = enc.encode_images(pil_frames)  # [T,D]
-
+    img_emb = enc.encode_images(pil_frames)                          # [T, D], L2-normalized
     target_desc = (spec.get("description") or "").strip() or "the scene"
-    txt_tgt_desc = enc.encode_texts([target_desc])[0]
-    sim_t_desc = (img_emb @ txt_tgt_desc).mean().item()
-    CLIP_F = float(sim_t_desc)  # frame-level mean
-    mean_img = F.normalize(img_emb.mean(dim=0, keepdim=True), dim=-1)[0]
-    CLIP_T = float(F.cosine_similarity(mean_img, txt_tgt_desc, dim=0).item())
+    txt_tgt_desc = enc.encode_texts([target_desc])[0]                # [D], L2-normalized
+
+    # CLIP-T: average image–text cosine over frames (×100)
+    per_frame_it = (img_emb @ txt_tgt_desc)                          # [T]
+    CLIP_T = float(per_frame_it.mean().item() * 100.0)
+
+    # CLIP-F: average cosine between consecutive frame embeddings (×100)
+    if img_emb.shape[0] >= 2:
+        # cosine between img_emb[t] and img_emb[t+1] since embeddings are normalized
+        per_pair_ff = (img_emb[:-1] * img_emb[1:]).sum(dim=1)        # [T-1]
+        CLIP_F = float(per_pair_ff.mean().item() * 100.0)
+    else:
+        CLIP_F = float("nan")
 
     # 4) Instance-aware metrics (CIA/LTF/IA/LTC)
     insts = spec.get("instances", [])
@@ -398,7 +406,7 @@ def compute_metrics(orig_frames: List[np.ndarray], edit_frames: List[np.ndarray]
     preds = torch.argmax(S, dim=1)
     cia = (preds == torch.arange(S.shape[0], device=S.device)).float().mean().item()
 
-    # LTF: diagonal mean
+    # LTF: diagonal mean  (NOTE: remains cosine similarity in [-1,1], not scaled)
     ltf = torch.diag(S).mean().item()
 
     # IA: target > source per instance
@@ -423,7 +431,7 @@ def compute_metrics(orig_frames: List[np.ndarray], edit_frames: List[np.ndarray]
     return {
         "PSNR": float(PSNR), "SSIM": float(SSIM), "LPIPS": float(LPIPS),
         "Warp-Err": float(WarpErr),
-        "CLIP-F": float(CLIP_F), "CLIP-T": float(CLIP_T),
+        "CLIP-F": float(CLIP_F), "CLIP-T": float(CLIP_T),  # scaled by 100
         "CIA": float(cia), "LTF": float(ltf), "IA": float(ia), "LTC": float(ltc)
     }
 
@@ -467,7 +475,10 @@ def main():
     for k in ["CIA","LTF","IA","LTC","CLIP-F","CLIP-T","PSNR","SSIM","LPIPS","Warp-Err"]:
         v = metrics[k]
         if isinstance(v, float) and np.isfinite(v):
-            print(f"{k:8s}: {v:.4f}")
+            if k in ("CLIP-F","CLIP-T"):
+                print(f"{k:8s}: {v:.2f}")  # show two decimals since it's 0–100 scale now
+            else:
+                print(f"{k:8s}: {v:.4f}")
         else:
             print(f"{k:8s}: {v}")
 
