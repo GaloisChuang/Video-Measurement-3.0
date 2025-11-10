@@ -1,0 +1,16 @@
+{
+  "description": "A man with a leather jacket and a woman with a red school bag walking across each other.",
+  "instances": [
+    {
+      "instance_id": "1",
+      "source_caption": "A bag",
+      "target_caption": "red school bag"
+    },
+    {
+      "instance_id": "2",
+      "source_caption": "cloth",
+      "target_caption": "leather jacket"
+    }
+  ],
+  "mask_root": "data/masks/bag_cloth"
+}

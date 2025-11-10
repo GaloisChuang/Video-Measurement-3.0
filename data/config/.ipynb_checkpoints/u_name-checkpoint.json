@@ -1,0 +1,16 @@
+{
+  "description": "A grandpa and a grandma walking opposite on the stairs.",
+  "instances": [
+    {
+      "instance_id": "1",
+      "source_caption": "A girl",
+      "target_caption": "A grandma"
+    },
+    {
+      "instance_id": "2",
+      "source_caption": "A boy",
+      "target_caption": "A grandpa"
+    }
+  ],
+  "mask_root": "data/masks/u_name"
+}

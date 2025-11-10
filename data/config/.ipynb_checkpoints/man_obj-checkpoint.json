@@ -1,0 +1,16 @@
+{
+  "description": "A Super man and a TV pass each other.",
+  "instances": [
+    {
+      "instance_id": "1",
+      "source_caption": "A fridge",
+      "target_caption": "A TV"
+    },
+    {
+      "instance_id": "2",
+      "source_caption": "A man",
+      "target_caption": "A super man"
+    }
+  ],
+  "mask_root": "data/masks/man_obj"
+}

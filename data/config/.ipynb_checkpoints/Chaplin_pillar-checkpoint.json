@@ -1,0 +1,16 @@
+{
+  "description": "A spider man walks across a tree.",
+  "instances": [
+    {
+      "instance_id": "1",
+      "source_caption": "A man",
+      "target_caption": "A spider man"
+    },
+    {
+      "instance_id": "2",
+      "source_caption": "A pillar",
+      "target_caption": "A tree"
+    }
+  ],
+  "mask_root": "data/masks/Chaplin"
+}

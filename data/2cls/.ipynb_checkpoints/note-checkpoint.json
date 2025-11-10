@@ -1,0 +1,16 @@
+{
+  "description": "Iron Man and Spiderman are jogging under cherry blossoms.",
+  "instances": [
+    {
+      "instance_id": "1",
+      "source_caption": "A man",
+      "target_caption": "Iron Man"
+    },
+    {
+      "instance_id": "2",
+      "source_caption": "A man",
+      "target_caption": "Spider man"
+    }
+  ],
+  "mask_root": "data/2cls/masks"
+}

@@ -1,0 +1,16 @@
+{
+  "description": "A firetruck and a taxi are on the road.",
+  "instances": [
+    {
+      "instance_id": "1",
+      "source_caption": "A blue truck",
+      "target_caption": "A firetruck"
+    },
+    {
+      "instance_id": "2",
+      "source_caption": "A red sports car",
+      "target_caption": "A taxi"
+    }
+  ],
+  "mask_root": "data/masks/car_truck"
+}

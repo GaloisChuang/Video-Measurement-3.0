@@ -1,0 +1,16 @@
+{
+  "description": "A Golden Retriever and a giant monkey cross each other.",
+  "instances": [
+    {
+      "instance_id": "1",
+      "source_caption": "A dog",
+      "target_caption": "A Golden Retriever"
+    },
+    {
+      "instance_id": "2",
+      "source_caption": "A cat",
+      "target_caption": "giant monkey"
+    }
+  ],
+  "mask_root": "data/masks/dog_cat"
+}

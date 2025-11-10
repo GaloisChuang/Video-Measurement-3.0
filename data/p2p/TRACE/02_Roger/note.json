@@ -1,0 +1,16 @@
+{
+  "description": "Spider man and Polar bear walking in opposite directions.",
+  "instances": [
+    {
+      "instance_id": "1",
+      "source_caption": "A man",
+      "target_caption": "Spider man"
+    },
+    {
+      "instance_id": "2",
+      "source_caption": "A woman",
+      "target_caption": "Polar bear"
+    }
+  ],
+  "mask_root": "data/masks/02_roger"
+}

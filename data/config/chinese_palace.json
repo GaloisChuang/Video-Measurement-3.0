@@ -1,0 +1,16 @@
+{
+  "description": "An iron man and a police walk in the garden.",
+  "instances": [
+    {
+      "instance_id": "1",
+      "source_caption": "A man",
+      "target_caption": "A police"
+    },
+    {
+      "instance_id": "2",
+      "source_caption": "A woman",
+      "target_caption": "A iron man"
+    }
+  ],
+  "mask_root": "data/masks/chinese_palace"
+}

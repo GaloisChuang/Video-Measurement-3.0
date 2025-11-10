@@ -1,0 +1,16 @@
+{
+  "description": "A curly apricot fur toy poodle walks across a giant panda.",
+  "instances": [
+    {
+      "instance_id": "1",
+      "source_caption": "elephant",
+      "target_caption": "gient panda"
+    },
+    {
+      "instance_id": "2",
+      "source_caption": "elephant",
+      "target_caption": "fur toy poodle"
+    }
+  ],
+  "mask_root": "data/masks/elephant  "
+}

@@ -1,0 +1,16 @@
+{
+  "description": "A blue bowl and a yellow bowl are moving on the table.",
+  "instances": [
+    {
+      "instance_id": "1",
+      "source_caption": "A brown bowl",
+      "target_caption": "A blue bowl"
+    },
+    {
+      "instance_id": "2",
+      "source_caption": "A brown bowl",
+      "target_caption": "A yellow bowl"
+    }
+  ],
+  "mask_root": "data/masks/3bowl"
+}

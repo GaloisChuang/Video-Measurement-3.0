@@ -1,0 +1,16 @@
+{
+  "description": "A school bus and an iron man riding a scooter crossing on the road.",
+  "instances": [
+    {
+      "instance_id": "1",
+      "source_caption": "A car",
+      "target_caption": "school bus"
+    },
+    {
+      "instance_id": "2",
+      "source_caption": "woman",
+      "target_caption": "iron man"
+    }
+  ],
+  "mask_root": "data/masks/car_woman"
+}

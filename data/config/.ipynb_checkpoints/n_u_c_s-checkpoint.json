@@ -1,0 +1,16 @@
+{
+  "description": "A police’s back and an iron man's back move inside a room."",
+  "instances": [
+    {
+      "instance_id": "1",
+      "source_caption": "A young_man's back",
+      "target_caption": "A iron man"
+    },
+    {
+      "instance_id": "2",
+      "source_caption": "A man's back with hat",
+      "target_caption": "A police"
+    }
+  ],
+  "mask_root": "data/masks/n_u_c_s"
+}

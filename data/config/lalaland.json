@@ -1,0 +1,16 @@
+{
+  "description": "Astronaut and Iron man walking in opposite directions.",
+  "instances": [
+    {
+      "instance_id": "1",
+      "source_caption": "A man",
+      "target_caption": "A astronaut"
+    },
+    {
+      "instance_id": "2",
+      "source_caption": "A woman",
+      "target_caption": "A iron man"
+    }
+  ],
+  "mask_root": "data/masks/lalaland"
+}

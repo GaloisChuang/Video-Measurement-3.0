@@ -1,0 +1,16 @@
+{
+  "description": "Spiderman walks from behind a superman.",
+  "instances": [
+    {
+      "instance_id": "1",
+      "source_caption": "A man",
+      "target_caption": "Spiderman"
+    },
+    {
+      "instance_id": "2",
+      "source_caption": "A woman",
+      "target_caption": "superman"
+    }
+  ],
+  "mask_root": "data/masks/03_roger"
+}

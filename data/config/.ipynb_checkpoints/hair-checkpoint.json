@@ -1,0 +1,16 @@
+{
+  "description": "A girl with wavy brown curly hair walk pass another girl with orange hair.",
+  "instances": [
+    {
+      "instance_id": "1",
+      "source_caption": "brown hair",
+      "target_caption": "orange hair"
+    },
+    {
+      "instance_id": "2",
+      "source_caption": "purple hair",
+      "target_caption": "brown curly hair"
+    }
+  ],
+  "mask_root": "data/masks/hair"
+}
