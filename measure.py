@@ -438,9 +438,18 @@ def compute_metrics(orig_frames: List[np.ndarray], edit_frames: List[np.ndarray]
             continue
         txt_tgt = id2tgt[iid]
         txt_src = id2src[iid]
-        sim_t = torch.stack([ (e * txt_tgt).sum() for e in seq ], dim=0).mean().item()
-        sim_s = torch.stack([ (e * txt_src).sum() for e in seq ], dim=0).mean().item()
-        ia_list.append(1.0 if sim_t > sim_s else 0.0)
+        # sim_t = torch.stack([ (e * txt_tgt).sum() for e in seq ], dim=0).mean().item()
+        # sim_s = torch.stack([ (e * txt_src).sum() for e in seq ], dim=0).mean().item()
+        # ia_list.append(1.0 if sim_t >= sim_s else 0.0)
+
+        # 建逐幀相似度 Tensor（與 target、與 source）
+        sims_t = torch.stack([(e * txt_tgt).sum() for e in seq], dim=0)  # [T]
+        sims_s = torch.stack([(e * txt_src).sum() for e in seq], dim=0)  # [T]
+    
+        # 逐幀投票：target 勝過 source 記 1，否則 0
+        votes = (sims_t > sims_s).float().mean().item()  # 比較得到 bool，再轉 float 求平均
+        ia_list.append(votes)
+
     ia = float(np.mean(ia_list)) if ia_list else float("nan")
 
     # LTC: temporal consistency of per-frame instance embeddings
