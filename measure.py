@@ -32,7 +32,7 @@ python measure.py \
   --edit /path/edited.mp4 \
   --spec /path/spec.json \
   --device cuda \
-  --sample_stride 2 \
+  --sample_stride 1 \
   --max_frames 240 \
   --save_json ./metrics.json
 
@@ -165,6 +165,8 @@ def list_mask_paths(mask_root: Optional[Path], instance_id: str, T: int,
     if mask_root is None:
         return [None] * T
     out: List[Optional[Path]] = []
+    mask_root = Path(str(mask_root).strip())   # ← add this
+    instance_id = str(instance_id).strip()     # ← and this
     miss = 0
     for t in range(T):
         cand: Optional[Path] = None
